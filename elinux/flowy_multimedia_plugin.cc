@@ -13,14 +13,14 @@
 namespace {
 
 class FlowyMultimediaPlugin : public flutter::Plugin {
- public:
+public:
   static void RegisterWithRegistrar(flutter::PluginRegistrar *registrar);
 
   FlowyMultimediaPlugin();
 
   virtual ~FlowyMultimediaPlugin();
 
- private:
+private:
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
@@ -45,13 +45,9 @@ void FlowyMultimediaPlugin::RegisterWithRegistrar(
   registrar->AddPlugin(std::move(plugin));
 }
 
-FlowyMultimediaPlugin::FlowyMultimediaPlugin() {
-  gst_init(NULL, NULL);
-}
+FlowyMultimediaPlugin::FlowyMultimediaPlugin() { gst_init(NULL, NULL); }
 
-FlowyMultimediaPlugin::~FlowyMultimediaPlugin() {
-  gst_deinit();
-}
+FlowyMultimediaPlugin::~FlowyMultimediaPlugin() { gst_deinit(); }
 
 void FlowyMultimediaPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
@@ -63,14 +59,22 @@ void FlowyMultimediaPlugin::HandleMethodCall(
     std::ostringstream version_stream;
     version_stream << "eLinux";
     result->Success(flutter::EncodableValue(version_stream.str()));
-  } else if (method_call.method_name().compare("play") == 0) {
+  } else if (method_call.method_name().compare("sendAudio") == 0) {
     result->Success(flutter::EncodableValue("Not implemented"));
+  } else if (method_call.method_name().compare("receiveAudio")) {
+
+  } else if (method_call.method_name().compare("receiveVideo")) {
+
+  } else if (method_call.method_name().compare("sendVideo")) {
+
+  } else if (method_call.method_name().compare("startRecord")) {
+  } else if (method_call.method_name().compare("stopRecord")) {
   } else {
     result->NotImplemented();
   }
 }
 
-}  // namespace
+} // namespace
 
 void FlowyMultimediaPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {
