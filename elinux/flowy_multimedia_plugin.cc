@@ -56,10 +56,15 @@ FlowyMultimediaPlugin::~FlowyMultimediaPlugin() {
 void FlowyMultimediaPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+  std::cout << "Method called: " << method_call.method_name() << std::endl;
+  std::cout << "Method arguments: " << method_call.arguments() << std::endl;
+
   if (method_call.method_name().compare("getPlatformVersion") == 0) {
     std::ostringstream version_stream;
     version_stream << "eLinux";
     result->Success(flutter::EncodableValue(version_stream.str()));
+  } else if (method_call.method_name().compare("play") == 0) {
+    result->Success(flutter::EncodableValue("Not implemented"));
   } else {
     result->NotImplemented();
   }
