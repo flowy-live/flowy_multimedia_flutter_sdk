@@ -8,6 +8,8 @@
 #include <memory>
 #include <sstream>
 
+#include <gst/gst.h>
+
 namespace {
 
 class FlowyMultimediaPlugin : public flutter::Plugin {
@@ -43,9 +45,13 @@ void FlowyMultimediaPlugin::RegisterWithRegistrar(
   registrar->AddPlugin(std::move(plugin));
 }
 
-FlowyMultimediaPlugin::FlowyMultimediaPlugin() {}
+FlowyMultimediaPlugin::FlowyMultimediaPlugin() {
+  gst_init(NULL, NULL);
+}
 
-FlowyMultimediaPlugin::~FlowyMultimediaPlugin() {}
+FlowyMultimediaPlugin::~FlowyMultimediaPlugin() {
+  gst_deinit();
+}
 
 void FlowyMultimediaPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
