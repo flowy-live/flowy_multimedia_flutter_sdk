@@ -26,7 +26,7 @@ public:
     std::string& StopRecord();
 
 private:
-    GstElement* m_audio_pipeline;
-    GstElement* m_video_pipeline;
+    GstElement* m_audio_send_pipeline;
+    GstElement* m_audio_receive_pipeline;
     GstElement* m_record_pipeline;
 };
