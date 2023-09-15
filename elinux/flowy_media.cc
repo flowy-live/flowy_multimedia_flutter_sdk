@@ -31,19 +31,22 @@ void FlowyMedia::Init()
                            "audio/x-raw,format=S16LE,rate=8000,channels=1 ! alawenc ! rtppcmapay ! "
                            "udpsink host=192.168.50.92 port=5002",
                            NULL);
+    gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
 
-    m_audio_receive_pipeline = gst_parse_launch(
-        "gst-pipeline: udpsrc port=5003 ! application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink",
-        NULL);
-    gst_element_set_state(m_audio_receive_pipeline, GST_STATE_PLAYING);
+    // m_audio_receive_pipeline = gst_parse_launch(
+    //     "udpsrc port=5003 ! application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink",
+    //     NULL);
+    // std::cout << "Starting receive audio pipeline" << std::endl;
+    // gst_element_set_state(m_audio_receive_pipeline, GST_STATE_PLAYING);
 }
 
 FlowyMedia::~FlowyMedia()
 {
     gst_element_set_state(m_audio_send_pipeline, GST_STATE_NULL);
-    gst_element_set_state(m_audio_receive_pipeline, GST_STATE_NULL);
+    // gst_element_set_state(m_audio_receive_pipeline, GST_STATE_NULL);
 
     delete m_audio_send_pipeline;
+    delete m_audio_receive_pipeline;
     delete m_record_pipeline;
 
     gst_deinit();
@@ -51,6 +54,7 @@ FlowyMedia::~FlowyMedia()
 
 void FlowyMedia::StartSendLiveAudio()
 {
+    std::cout << "Starting send live audio" << std::endl;
     gst_element_set_state(m_audio_send_pipeline, GST_STATE_PLAYING);
 }
 
@@ -58,6 +62,7 @@ void FlowyMedia::StartSendLiveAudio()
 // record pipeline might not work if this is paused
 void FlowyMedia::StopSendLiveAudio()
 {
+    std::cout << "Stopping send live audio" << std::endl;
     gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
 }
 

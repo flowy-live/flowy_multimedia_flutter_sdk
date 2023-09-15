@@ -4,6 +4,7 @@
 #include <flutter/plugin_registrar.h>
 #include <flutter/standard_method_codec.h>
 
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -46,6 +47,7 @@ void FlowyMultimediaPlugin::RegisterWithRegistrar(flutter::PluginRegistrar* regi
 
 FlowyMultimediaPlugin::FlowyMultimediaPlugin()
 {
+    std::cout << "Creating FlowyMultimediaPlugin" << std::endl;
     m_media = std::make_unique<FlowyMedia>();
 }
 
@@ -71,21 +73,21 @@ void FlowyMultimediaPlugin::HandleMethodCall(
         m_media->Init();
         result->Success(flutter::EncodableValue("Initialized"));
     }
-    else if (method_call.method_name().compare("startSendLiveAudio"))
+    else if (method_call.method_name().compare("startSendLiveAudio") == 0)
     {
         m_media->StartSendLiveAudio();
         result->Success(flutter::EncodableValue("Started"));
     }
-    else if (method_call.method_name().compare("stopSendLiveAudio"))
+    else if (method_call.method_name().compare("stopSendLiveAudio") == 0)
     {
         m_media->StopSendLiveAudio();
         result->Success(flutter::EncodableValue("Stopped"));
     }
-    else if (method_call.method_name().compare("startRecord"))
+    else if (method_call.method_name().compare("startRecord") == 0)
     {
         result->Error("UNIMPLEMENTED", "startRecord is not implemented");
     }
-    else if (method_call.method_name().compare("stopRecord"))
+    else if (method_call.method_name().compare("stopRecord") == 0)
     {
         result->Error("UNIMPLEMENTED", "stopRecord is not implemented");
     }
@@ -93,6 +95,8 @@ void FlowyMultimediaPlugin::HandleMethodCall(
     {
         result->NotImplemented();
     }
+
+    std::cout << "Method call handled" << std::endl;
 }
 
 }  // namespace
