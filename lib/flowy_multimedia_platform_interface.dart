@@ -26,4 +26,24 @@ abstract class FlowyMultimediaPlatform extends PlatformInterface {
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
+
+  Future<String?> init() {
+    throw UnimplementedError('init() has not been implemented.');
+  }
+
+  Future<String?> startSendLiveAudio() {
+    throw UnimplementedError('startSendLiveAudio() has not been implemented.');
+  }
+
+  Future<String?> stopSendLiveAudio() {
+    throw UnimplementedError('stopSendLiveAudio() has not been implemented.');
+  }
+
+  Future<String?> startRecord() {
+    throw UnimplementedError('startRecord() has not been implemented.');
+  }
+
+  Future<String?> stopRecord() {
+    throw UnimplementedError('stopRecord() has not been implemented.');
+  }
 }

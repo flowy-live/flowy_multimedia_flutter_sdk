@@ -11,7 +11,40 @@ class MethodChannelFlowyMultimedia extends FlowyMultimediaPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
+  }
+
+  @override
+  Future<String?> init() async {
+    final result = await methodChannel.invokeMethod<String>('init');
+    return result;
+  }
+
+  @override
+  Future<String?> startSendLiveAudio() async {
+    final result =
+        await methodChannel.invokeMethod<String>('startSendLiveAudio');
+    return result;
+  }
+
+  @override
+  Future<String?> stopSendLiveAudio() async {
+    final result =
+        await methodChannel.invokeMethod<String>('stopSendLiveAudio');
+    return result;
+  }
+
+  @override
+  Future<String?> startRecord() async {
+    final result = await methodChannel.invokeMethod<String>('startRecord');
+    return result;
+  }
+
+  @override
+  Future<String?> stopRecord() async {
+    final result = await methodChannel.invokeMethod<String>('stopRecord');
+    return result;
   }
 }

@@ -12,13 +12,19 @@ FlowyMedia::FlowyMedia()
 {
     gst_init(nullptr, nullptr);
 
-    m_audio_send_pipeline  = nullptr;
+    m_audio_send_pipeline    = nullptr;
     m_audio_receive_pipeline = nullptr;
-    m_record_pipeline = nullptr;
+    m_record_pipeline        = nullptr;
 }
 
 void FlowyMedia::Init()
 {
+    if (m_audio_send_pipeline != nullptr)
+    {
+        std::cerr << "MEDIA: already initialized pipeline" << std::endl;
+        return;
+    }
+
     // TODO: use opusenc and rtpopuspay
     m_audio_send_pipeline
         = gst_parse_launch("alsasrc ! audioconvert ! audioresample ! "
@@ -26,7 +32,9 @@ void FlowyMedia::Init()
                            "udpsink host=192.168.50.92 port=5002",
                            NULL);
 
-    m_audio_receive_pipeline = gst_parse_launch("gst-pipeline: udpsrc port=5003 ! application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink", NULL);
+    m_audio_receive_pipeline = gst_parse_launch(
+        "gst-pipeline: udpsrc port=5003 ! application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink",
+        NULL);
     gst_element_set_state(m_audio_receive_pipeline, GST_STATE_PLAYING);
 }
 

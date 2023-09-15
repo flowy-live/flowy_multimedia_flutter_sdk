@@ -11,4 +11,16 @@ class FlowyMultimedia {
   Future<String?> getPlatformVersion() {
     return FlowyMultimediaPlatform.instance.getPlatformVersion();
   }
+
+  Future<String?> init() {
+    return FlowyMultimediaPlatform.instance.init();
+  }
+
+  Future<String?> startSendLiveAudio() {
+    return FlowyMultimediaPlatform.instance.startSendLiveAudio();
+  }
+
+  Future<String?> stopSendLiveAudio() {
+    return FlowyMultimediaPlatform.instance.stopSendLiveAudio();
+  }
 }
