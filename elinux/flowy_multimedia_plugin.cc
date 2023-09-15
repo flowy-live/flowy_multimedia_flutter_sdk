@@ -74,10 +74,12 @@ void FlowyMultimediaPlugin::HandleMethodCall(
     else if (method_call.method_name().compare("startSendLiveAudio"))
     {
         m_media->StartSendLiveAudio();
+        result->Success(flutter::EncodableValue("Started"));
     }
     else if (method_call.method_name().compare("stopSendLiveAudio"))
     {
         m_media->StopSendLiveAudio();
+        result->Success(flutter::EncodableValue("Stopped"));
     }
     else if (method_call.method_name().compare("startRecord"))
     {
