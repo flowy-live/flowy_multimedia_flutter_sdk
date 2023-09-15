@@ -68,13 +68,13 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () async {
                   await _flowyMultimediaPlugin.startSendLiveAudio();
                 },
-                child: const Text('startSendLiveAudio'),
+                child: const Text('Start Audio'),
               ),
               ElevatedButton(
                 onPressed: () async {
                   await _flowyMultimediaPlugin.stopSendLiveAudio();
                 },
-                child: const Text('stopSendLiveAudio'),
+                child: const Text('Stop Audio'),
               ),
             ],
           ),
