@@ -12,6 +12,7 @@ pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
 
 add_library(${PLUGIN_NAME} SHARED
   "flowy_multimedia_plugin.cc"
+  "flowy_media.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES
