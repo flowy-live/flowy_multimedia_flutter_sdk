@@ -31,6 +31,7 @@ void FlowyMedia::Init()
                            "audio/x-raw,format=S16LE,rate=8000,channels=1 ! alawenc ! rtppcmapay ! "
                            "udpsink host=192.168.50.92 port=5002",
                            NULL);
+    gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
 
     m_audio_receive_pipeline = gst_parse_launch(
         "udpsrc port=5003 ! application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink",
