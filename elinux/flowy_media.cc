@@ -1,6 +1,5 @@
 
 #include "gst/gstelement.h"
-#include "gst/gstinfo.h"
 #include "include/flowy_media.h"
 
 #include <gst/gst.h>
@@ -16,8 +15,6 @@ FlowyMedia::FlowyMedia()
     m_audio_send_pipeline    = nullptr;
     m_audio_receive_pipeline = nullptr;
     m_record_pipeline        = nullptr;
-
-    gst_debug_set_active(true);
 }
 
 void FlowyMedia::Init()
