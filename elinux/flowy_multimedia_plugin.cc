@@ -9,7 +9,6 @@
 #include <sstream>
 
 #include "include/flowy_media.h"
-#include <gst/gst.h>
 
 namespace {
 
@@ -48,9 +47,12 @@ void FlowyMultimediaPlugin::RegisterWithRegistrar(
   registrar->AddPlugin(std::move(plugin));
 }
 
-FlowyMultimediaPlugin::FlowyMultimediaPlugin() { gst_init(NULL, NULL); }
+FlowyMultimediaPlugin::FlowyMultimediaPlugin() {
+  m_media = std::make_unique<FlowyMedia>();
+  m_media->Init();
+}
 
-FlowyMultimediaPlugin::~FlowyMultimediaPlugin() { gst_deinit(); }
+FlowyMultimediaPlugin::~FlowyMultimediaPlugin() {}
 
 void FlowyMultimediaPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
