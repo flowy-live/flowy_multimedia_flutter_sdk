@@ -8,6 +8,7 @@
 #include <memory>
 #include <sstream>
 
+#include "include/flowy_media.h"
 #include <gst/gst.h>
 
 namespace {
@@ -25,6 +26,8 @@ private:
   void HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+
+  std::unique_ptr<FlowyMedia> m_media;
 };
 
 // static
