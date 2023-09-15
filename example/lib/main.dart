@@ -31,8 +31,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _flowyMultimediaPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _flowyMultimediaPlugin.getPlatformVersion() ??
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -55,7 +55,29 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            children: [
+              Text('Running on: $_platformVersion\n'),
+              ElevatedButton(
+                onPressed: () async {
+                  await _flowyMultimediaPlugin.init();
+                },
+                child: const Text('init'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _flowyMultimediaPlugin.startSendLiveAudio();
+                },
+                child: const Text('startSendLiveAudio'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _flowyMultimediaPlugin.stopSendLiveAudio();
+                },
+                child: const Text('stopSendLiveAudio'),
+              ),
+            ],
+          ),
         ),
       ),
     );
