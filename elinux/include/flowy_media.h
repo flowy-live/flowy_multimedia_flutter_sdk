@@ -11,22 +11,22 @@ public:
     ~FlowyMedia();
 
     /**
-     * Initializes pipeline and elements and sets state to paused
+     * Initializes pipeline and elements and starts receiving media
      * NOTE: only audio pipeline is initialized for now
      */
     void Init();
 
-    void StartLiveAudio();
-    void StopLiveAudio();
+    void StartSendLiveAudio();
+    void StopSendLiveAudio();
 
-    void StartLiveVideo();
-    void StopLiveVideo();
+    void StartSendLiveVideo();
+    void StopSendLiveVideo();
 
     void         StartRecord();
     std::string& StopRecord();
 
 private:
-    std::unique_ptr<GstElement> m_audio_pipeline;
-    std::unique_ptr<GstElement> m_video_pipeline;
-    std::unique_ptr<GstElement> m_record_pipeline;
+    GstElement* m_audio_pipeline;
+    GstElement* m_video_pipeline;
+    GstElement* m_record_pipeline;
 };
