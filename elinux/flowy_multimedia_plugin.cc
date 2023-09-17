@@ -85,11 +85,13 @@ void FlowyMultimediaPlugin::HandleMethodCall(
     }
     else if (method_call.method_name().compare("startRecord") == 0)
     {
-        result->Error("UNIMPLEMENTED", "startRecord is not implemented");
+        m_media->StartRecord();
+        result->Success(flutter::EncodableValue("Started recording"));
     }
     else if (method_call.method_name().compare("stopRecord") == 0)
     {
-        result->Error("UNIMPLEMENTED", "stopRecord is not implemented");
+        std::string file_path = m_media->StopRecord();
+        result->Success(flutter::EncodableValue("Stopped recording"));
     }
     else
     {

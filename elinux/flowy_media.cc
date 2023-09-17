@@ -26,11 +26,11 @@ void FlowyMedia::Init()
     }
 
     // TODO: use opusenc and rtpopuspay
-    m_audio_send_pipeline
-        = gst_parse_launch("alsasrc ! audioconvert ! audioresample ! "
-                           "audio/x-raw,format=S16LE,rate=8000,channels=1 ! alawenc ! rtppcmapay ! queue ! "
-                           "udpsink host=192.168.50.92 port=5002",
-                           NULL);
+    m_audio_send_pipeline = gst_parse_launch(
+        "alsasrc ! audioconvert ! audioresample ! "
+        "audio/x-raw,format=S16LE,rate=8000,channels=1 ! alawenc ! rtppcmapay ! queue ! "
+        "udpsink host=192.168.50.92 port=5002",
+        NULL);
     gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
 
     m_audio_receive_pipeline = gst_parse_launch(
@@ -38,12 +38,24 @@ void FlowyMedia::Init()
         NULL);
     std::cout << "Starting receive audio pipeline" << std::endl;
     gst_element_set_state(m_audio_receive_pipeline, GST_STATE_PLAYING);
+
+    m_record_pipeline = gst_parse_launch(
+        "v4l2src ! videoconvert ! queue ! x264enc tune=zerolatency ! "
+        "mux. alsasrc ! queue ! audioconvert ! audioresample ! voaacenc ! "
+        "aacparse ! qtmux name=mux ! filesink location=test.mp4 sync=false",
+        NULL);
+    gst_element_set_state(m_record_pipeline, GST_STATE_PAUSED);
 }
 
 FlowyMedia::~FlowyMedia()
 {
     gst_element_set_state(m_audio_send_pipeline, GST_STATE_NULL);
     gst_element_set_state(m_audio_receive_pipeline, GST_STATE_NULL);
+    gst_element_set_state(m_record_pipeline, GST_STATE_NULL);
+
+    gst_object_unref(m_audio_send_pipeline);
+    gst_object_unref(m_audio_receive_pipeline);
+    gst_object_unref(m_record_pipeline);
 
     delete m_audio_send_pipeline;
     delete m_audio_receive_pipeline;
@@ -74,4 +86,19 @@ void FlowyMedia::StartSendLiveVideo()
 void FlowyMedia::StopSendLiveVideo()
 {
     std::cerr << "Not implemented!!" << std::endl;
+}
+
+void FlowyMedia::StartRecord()
+{
+    std::cout << "Starting record" << std::endl;
+    gst_element_set_state(m_record_pipeline, GST_STATE_PLAYING);
+}
+
+std::string FlowyMedia::StopRecord()
+{
+    std::cout << "Stopping record" << std::endl;
+    gst_element_set_state(m_record_pipeline, GST_STATE_PAUSED);
+
+    // get full path to file
+    return std::string("./test.mp4");
 }

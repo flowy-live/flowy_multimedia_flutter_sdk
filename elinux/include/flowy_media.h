@@ -24,7 +24,11 @@ public:
     void StopSendLiveVideo();
 
     void         StartRecord();
-    std::string& StopRecord();
+
+    /**
+     * @return path to recorded file
+     */
+    std::string StopRecord();
 
 private:
     GstElement* m_audio_send_pipeline;

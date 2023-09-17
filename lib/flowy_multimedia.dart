@@ -23,4 +23,12 @@ class FlowyMultimedia {
   Future<String?> stopSendLiveAudio() {
     return FlowyMultimediaPlatform.instance.stopSendLiveAudio();
   }
+
+  Future<String?> startRecord() {
+    return FlowyMultimediaPlatform.instance.startRecord();
+  }
+
+  Future<String?> stopRecord() {
+    return FlowyMultimediaPlatform.instance.stopRecord();
+  }
 }

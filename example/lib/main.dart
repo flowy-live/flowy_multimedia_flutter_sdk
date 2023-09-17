@@ -18,6 +18,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _flowyMultimediaPlugin = FlowyMultimedia();
+  bool _isRecording = false;
 
   @override
   void initState() {
@@ -44,6 +45,18 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _platformVersion = platformVersion;
+    });
+  }
+
+  void toggleRecording() {
+    if (_isRecording) {
+      _flowyMultimediaPlugin.stopRecord();
+    } else {
+      _flowyMultimediaPlugin.startRecord();
+    }
+
+    setState(() {
+      _isRecording = !_isRecording;
     });
   }
 
@@ -76,6 +89,13 @@ class _MyAppState extends State<MyApp> {
                 },
                 child: const Text('Stop Audio'),
               ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  onPressed: () async {
+                    toggleRecording();
+                  },
+                  child: Text(
+                      _isRecording ? 'Stop Recording' : 'Start Recording')),
             ],
           ),
         ),
