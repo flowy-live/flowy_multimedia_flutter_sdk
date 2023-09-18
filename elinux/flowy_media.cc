@@ -99,7 +99,7 @@ void FlowyMedia::StartRecord()
 std::string FlowyMedia::StopRecord()
 {
     std::cout << "Stopping record" << std::endl;
-    gst_element_set_state(m_record_pipeline, GST_STATE_NULL);
+    gst_element_set_state(m_record_pipeline, GST_STATE_PAUSED);
 
     // get full path to file
     return std::string("./test.mp4");
