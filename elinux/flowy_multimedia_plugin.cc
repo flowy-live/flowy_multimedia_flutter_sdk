@@ -91,7 +91,7 @@ void FlowyMultimediaPlugin::HandleMethodCall(
     else if (method_call.method_name().compare("stopRecord") == 0)
     {
         std::string file_path = m_media->StopRecord();
-        result->Success(flutter::EncodableValue("Stopped recording"));
+        result->Success(flutter::EncodableValue(file_path));
     }
     else
     {
