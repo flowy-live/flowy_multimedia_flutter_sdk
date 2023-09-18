@@ -92,17 +92,23 @@ void FlowyMedia::Init()
 
 FlowyMedia::~FlowyMedia()
 {
-    gst_element_set_state(m_audio_send_pipeline, GST_STATE_NULL);
-    gst_element_set_state(m_audio_receive_pipeline, GST_STATE_NULL);
-    gst_element_set_state(m_record_pipeline, GST_STATE_NULL);
+    if (m_audio_send_pipeline != nullptr)
+    {
+        gst_element_set_state(m_audio_send_pipeline, GST_STATE_NULL);
+        gst_object_unref(m_audio_send_pipeline);
+    }
 
-    gst_object_unref(m_audio_send_pipeline);
-    gst_object_unref(m_audio_receive_pipeline);
-    gst_object_unref(m_record_pipeline);
+    if (m_record_pipeline != nullptr)
+    {
+        gst_element_set_state(m_audio_receive_pipeline, GST_STATE_NULL);
+        gst_object_unref(m_audio_receive_pipeline);
+    }
 
-    delete m_audio_send_pipeline;
-    delete m_audio_receive_pipeline;
-    delete m_record_pipeline;
+    if (m_record_pipeline != nullptr)
+    {
+        gst_element_set_state(m_record_pipeline, GST_STATE_NULL);
+        gst_object_unref(m_record_pipeline);
+    }
 
     gst_deinit();
 }
