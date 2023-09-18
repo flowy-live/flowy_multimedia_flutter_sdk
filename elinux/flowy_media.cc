@@ -42,9 +42,7 @@ void FlowyMedia::Init()
     // TODO: may need to fix based on camera device on embedded
     // TODO: use opus maybe for audio here
     m_record_pipeline = gst_parse_launch(
-        "v4l2src ! video/x-raw,width=640,height=480,framerate=30/1 ! "
-        "videoconvert ! x264enc tune=zerolatency ! mux. alsasrc ! queue ! audioconvert ! "
-        "audioresample ! voaacenc ! aacparse ! qtmux name=mux ! filesink location=test.mp4 sync=false",
+        "videotestsrc ! x264enc ! mp4mux name=mux ! filesink location=test.mp4  audiotestsrc ! lamemp3enc ! mux.",
         NULL);
     gst_element_set_state(m_record_pipeline, GST_STATE_PAUSED);
 }
@@ -99,7 +97,7 @@ void FlowyMedia::StartRecord()
 std::string FlowyMedia::StopRecord()
 {
     std::cout << "Stopping record" << std::endl;
-    gst_element_set_state(m_record_pipeline, GST_STATE_PAUSED);
+    gst_element_set_state(m_record_pipeline, GST_STATE_NULL);
 
     // get full path to file
     return std::string("./test.mp4");
