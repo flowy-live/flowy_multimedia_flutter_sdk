@@ -42,7 +42,7 @@ void FlowyMedia::Init()
     // TODO: may need to fix based on camera device on embedded
     // TODO: use opus maybe for audio here
     m_record_pipeline = gst_parse_launch(
-        "gst-launch-1.0 -e v4l2src ! video/x-raw,width=640,height=480,framerate=30/1 ! "
+        "v4l2src ! video/x-raw,width=640,height=480,framerate=30/1 ! "
         "videoconvert ! x264enc tune=zerolatency ! mux. alsasrc ! queue ! audioconvert ! "
         "audioresample ! voaacenc ! aacparse ! qtmux name=mux ! filesink location=test.mp4 sync=false",
         NULL);
