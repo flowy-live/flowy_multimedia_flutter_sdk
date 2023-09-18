@@ -8,6 +8,11 @@
 import 'flowy_multimedia_platform_interface.dart';
 
 class FlowyMultimedia {
+  FlowyMultimedia() {
+    init();
+  }
+
+
   Future<String?> getPlatformVersion() {
     return FlowyMultimediaPlatform.instance.getPlatformVersion();
   }
