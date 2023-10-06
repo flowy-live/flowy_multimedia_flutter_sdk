@@ -4,6 +4,8 @@
 #include <gtk/gtk.h>
 #include <sys/utsname.h>
 
+#include <iostream>
+
 #include <cstring>
 
 #include "flowy_multimedia_plugin_private.h"
@@ -32,6 +34,7 @@ static void flowy_multimedia_plugin_handle_method_call(
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
 
+  // response = get_platform_version();
   fl_method_call_respond(method_call, response, nullptr);
 }
 
