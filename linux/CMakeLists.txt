@@ -7,6 +7,9 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME "flowy_multimedia")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+# compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # This value is used when generating builds using this plugin, so it must
 # not be changed.
 set(PLUGIN_NAME "flowy_multimedia_plugin")
