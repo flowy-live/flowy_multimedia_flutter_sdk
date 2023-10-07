@@ -8,32 +8,25 @@
 import 'flowy_multimedia_platform_interface.dart';
 
 class FlowyMultimedia {
-  FlowyMultimedia() {
-    init();
-  }
-
+  FlowyMultimedia();
 
   Future<String?> getPlatformVersion() {
     return FlowyMultimediaPlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> init() {
-    return FlowyMultimediaPlatform.instance.init();
+  Future<void> startReceiveVideo() {
+    return FlowyMultimediaPlatform.instance.startReceiveVideo();
   }
 
-  Future<String?> startSendLiveAudio() {
-    return FlowyMultimediaPlatform.instance.startSendLiveAudio();
+  Future<void> stopReceiveVideo() {
+    return FlowyMultimediaPlatform.instance.stopReceiveVideo();
   }
 
-  Future<String?> stopSendLiveAudio() {
-    return FlowyMultimediaPlatform.instance.stopSendLiveAudio();
-  }
-
-  Future<String?> startRecord() {
+  Future<void> startRecord() {
     return FlowyMultimediaPlatform.instance.startRecord();
   }
 
-  Future<String?> stopRecord() {
+  Future<String> stopRecord() {
     return FlowyMultimediaPlatform.instance.stopRecord();
   }
 }

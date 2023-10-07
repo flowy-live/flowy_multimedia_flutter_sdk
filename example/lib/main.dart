@@ -72,15 +72,11 @@ class _MyAppState extends State<MyApp> {
             children: [
               Text('Running on: $_platformVersion\n'),
               ElevatedButton(
-                onPressed: () async {
-                  await _flowyMultimediaPlugin.startSendLiveAudio();
-                },
+                onPressed: () async {},
                 child: const Text('Start Audio'),
               ),
               ElevatedButton(
-                onPressed: () async {
-                  await _flowyMultimediaPlugin.stopSendLiveAudio();
-                },
+                onPressed: () async {},
                 child: const Text('Stop Audio'),
               ),
               ElevatedButton(
