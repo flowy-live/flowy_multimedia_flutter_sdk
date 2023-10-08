@@ -135,6 +135,9 @@ void flowy_multimedia_plugin_register_with_registrar(FlPluginRegistrar* registra
     g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
     g_autoptr(FlMethodChannel) channel     = fl_method_channel_new(
         fl_plugin_registrar_get_messenger(registrar), "flowy_multimedia", FL_METHOD_CODEC(codec));
+
+    plugin->texture_registrar = fl_plugin_registrar_get_texture_registrar(registrar);
+
     fl_method_channel_set_method_call_handler(
         channel, method_call_cb, g_object_ref(plugin), g_object_unref);
 
