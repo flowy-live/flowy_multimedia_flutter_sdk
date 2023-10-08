@@ -21,6 +21,9 @@ public:
     void StartSendLiveVideo();
     void StopSendLiveVideo();
 
+    void StartReceiveVideo();
+    void StopReceiveVideo();
+
     void StartRecord();
 
     /**

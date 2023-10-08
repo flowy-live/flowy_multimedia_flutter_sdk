@@ -40,15 +40,21 @@ static void flowy_multimedia_plugin_handle_method_call(FlowyMultimediaPlugin* se
     else if (strcmp(method, "startReceiveVideo") == 0)
     {
         self->m_flowy_media->InitVideo();
+        self->m_flowy_media->StartReceiveVideo();
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
     }
     else if (strcmp(method, "stopReceiveVideo") == 0)
     {
+        self->m_flowy_media->StopReceiveVideo();
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
     }
     else if (strcmp(method, "startRecord") == 0)
     {
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
     }
     else if (strcmp(method, "stopRecord") == 0)
     {
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
     }
     else
     {

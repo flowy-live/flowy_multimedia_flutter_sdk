@@ -124,6 +124,7 @@ void FlowyMedia::InitVideo()
         || !m_video_receive_pipeline->video_sink)
     {
         std::cerr << "failed to create elements" << std::endl;
+        g_printerr("Elements could not be linked.\n");
         return;
     }
 
@@ -140,6 +141,7 @@ void FlowyMedia::InitVideo()
                                nullptr))
     {
         g_printerr("Elements could not be linked.\n");
+        return;
     }
 
     gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
@@ -367,4 +369,16 @@ void FlowyMedia::HandoffHandler(GstElement* fakesink,
         self->m_video_receive_pipeline->last_buffer = nullptr;
     }
     self->m_video_receive_pipeline->last_buffer = gst_buffer_ref(buf);
+}
+
+void FlowyMedia::StartReceiveVideo()
+{
+    std::cout << "Starting receive video" << std::endl;
+    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PLAYING);
+}
+
+void FlowyMedia::StopReceiveVideo()
+{
+    std::cout << "Stopping receive video" << std::endl;
+    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
 }
