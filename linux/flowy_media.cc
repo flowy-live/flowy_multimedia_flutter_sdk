@@ -2,6 +2,7 @@
 #include <gst/gstelement.h>
 #include "gst/gstpad.h"
 #include "gst/gstparse.h"
+#include "gst/gstpipeline.h"
 #include "include/flowy_media.h"
 #include <gst/video/video.h>
 
@@ -110,11 +111,19 @@ void FlowyMedia::InitVideo()
 
     std::cout << "initializing video receive" << std::endl;
 
-    m_video_receive_pipeline->pipeline = gst_parse_launch(
-        "videotestsrc ! videoconvert ! video/x-raw,format=RGBA ! appsink name=sink", nullptr);
+    m_video_receive_pipeline->pipeline = gst_pipeline_new("test-video");
+    GstElement* video_src              = gst_element_factory_make("videotestsrc", "video-source");
+    g_assert(video_src);
+    GstElement* video_convert = gst_element_factory_make("videoconvert", "video-convert");
+    g_assert(video_convert);
+    m_video_receive_pipeline->video_sink = gst_element_factory_make("appsink", "video-sink");
+    g_assert(m_video_receive_pipeline->video_sink);
 
-    m_video_receive_pipeline->video_sink
-        = gst_bin_get_by_name(GST_BIN(m_video_receive_pipeline->pipeline), "sink");
+    // set caps for video convert
+    GstCaps*    video_caps   = gst_caps_from_string("video/x-raw,format=BGRA");
+    GstElement* video_filter = gst_element_factory_make("capsfilter", "video-filter");
+    g_assert(video_filter);
+    g_object_set(G_OBJECT(video_filter), "caps", video_caps, NULL);
 
     // set callback for appsink
     g_object_set(G_OBJECT(m_video_receive_pipeline->video_sink),
@@ -126,17 +135,24 @@ void FlowyMedia::InitVideo()
     g_signal_connect(
         m_video_receive_pipeline->video_sink, "new-sample", G_CALLBACK(on_new_sample), this);
 
-    m_video_receive_pipeline->pipeline = gst_pipeline_new("video-receive");
+    // add elements to pipeline
+    gst_bin_add_many(GST_BIN(m_video_receive_pipeline->pipeline),
+                     video_src,
+                     video_filter,
+                     video_convert,
+                     m_video_receive_pipeline->video_sink,
+                     NULL);
 
-    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
+    g_assert(gst_element_link(video_src, video_convert));
+    g_assert(gst_element_link(video_convert, video_filter));
+    g_assert(gst_element_link(video_filter, m_video_receive_pipeline->video_sink));
 
+    // add bus callback
     m_video_receive_pipeline->bus = gst_element_get_bus(m_video_receive_pipeline->pipeline);
     gst_bus_add_watch(
         m_video_receive_pipeline->bus,
         [](GstBus* bus, GstMessage* msg, gpointer data)
         {
-            std::cout << "message type: " << GST_MESSAGE_TYPE(msg) << std::endl;
-
             switch (GST_MESSAGE_TYPE(msg))
             {
                 case GST_MESSAGE_ERROR:
@@ -145,6 +161,7 @@ void FlowyMedia::InitVideo()
                     gchar*  debug;
                     gst_message_parse_error(msg, &err, &debug);
                     g_printerr("Error: %s\n", err->message);
+                    std::cerr << "Error: " << err->message << std::endl;
                     g_error_free(err);
                     g_free(debug);
                     break;
@@ -159,6 +176,8 @@ void FlowyMedia::InitVideo()
             return (int) G_SOURCE_CONTINUE;
         },
         nullptr);
+
+    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
 
     std::cout << "video receive set up" << std::endl;
 }
@@ -184,6 +203,11 @@ GstFlowReturn FlowyMedia::on_new_sample(GstElement* sink, gpointer gSelf)
             GstCaps*      sampleCaps = gst_sample_get_caps(sample);
             gst_video_info_from_caps(&video_info, sampleCaps);
             gst_video_frame_map(&vframe, &video_info, buffer_, GST_MAP_READ);
+
+            std::cout << "video width: " << video_info.width << std::endl;
+            std::cout << "video height: " << video_info.height << std::endl;
+            std::cout << "video stride: " << video_info.stride[0] << std::endl;
+            std::cout << "video size: " << video_info.size << std::endl;
 
             self->video_callback_((uint8_t*) bufferInfo.data,
                                   video_info.size,
