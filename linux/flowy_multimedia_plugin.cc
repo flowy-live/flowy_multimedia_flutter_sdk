@@ -17,8 +17,10 @@
 
 struct _FlowyMultimediaPlugin
 {
-    GObject                     parent_instance;
-    std::unique_ptr<FlowyMedia> m_flowy_media;
+    GObject                                    parent_instance;
+    std::unique_ptr<FlowyMedia>                m_flowy_media;
+    // std::unique_ptr<FlPixelBufferTexture>      texture;
+    // std::unique_ptr<FlutterDesktopPixelBuffer> pixel_buffer;
 };
 
 G_DEFINE_TYPE(FlowyMultimediaPlugin, flowy_multimedia_plugin, g_object_get_type())
