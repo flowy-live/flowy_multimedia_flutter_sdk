@@ -17,8 +17,13 @@ class MethodChannelFlowyMultimedia extends FlowyMultimediaPlatform {
   }
 
   @override
-  Future<void> startReceiveVideo() async {
-    await methodChannel.invokeMethod<String>('startReceiveVideo');
+  Future<int> startReceiveVideo() async {
+    int? textureId = await methodChannel.invokeMethod<int>('startReceiveVideo');
+    if (textureId == null) {
+      throw Exception('textureId is null');
+    }
+
+    return textureId;
   }
 
   @override

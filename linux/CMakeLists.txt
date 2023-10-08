@@ -17,6 +17,8 @@ set(PLUGIN_NAME "flowy_multimedia_plugin")
 find_package(PkgConfig)
 pkg_check_modules(GLIB REQUIRED glib-2.0)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
+pkg_check_modules(GST_APP REQUIRED gstreamer-app-1.0)
+pkg_check_modules(GST_VIDEO REQUIRED gstreamer-video-1.0)
 include_directories(${GSTREAMER_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS})
 
 # Any new source files that you add to the plugin should be added here.
@@ -60,6 +62,8 @@ target_link_libraries(${PLUGIN_NAME}
   PRIVATE
     ${GLIB_LIBRARIES}
     ${GSTREAMER_LIBRARIES}
+    ${GST_APP_LIBRARIES}
+    ${GST_VIDEO_LIBRARIES}
 )
 
 # List of absolute paths to libraries that should be bundled with the plugin.

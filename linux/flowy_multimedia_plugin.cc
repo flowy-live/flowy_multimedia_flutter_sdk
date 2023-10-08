@@ -10,7 +10,9 @@
 #include <cstring>
 
 #include "include/flowy_media.h"
+#include "include/video_outlet.h"
 #include "flowy_multimedia_plugin_private.h"
+#include "video_outlet.h"
 
 #define FLOWY_MULTIMEDIA_PLUGIN(obj)                                                               \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), flowy_multimedia_plugin_get_type(), FlowyMultimediaPlugin))
@@ -21,6 +23,8 @@ struct _FlowyMultimediaPlugin
     std::unique_ptr<FlowyMedia> m_flowy_media;
     // std::unique_ptr<FlPixelBufferTexture>      texture;
     // std::unique_ptr<FlutterDesktopPixelBuffer> pixel_buffer;
+    VideoOutlet*        video_outlet;
+    FlTextureRegistrar* texture_registrar;
 };
 
 G_DEFINE_TYPE(FlowyMultimediaPlugin, flowy_multimedia_plugin, g_object_get_type())
@@ -40,8 +44,36 @@ static void flowy_multimedia_plugin_handle_method_call(FlowyMultimediaPlugin* se
     else if (strcmp(method, "startReceiveVideo") == 0)
     {
         self->m_flowy_media->InitVideo();
+
+        FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(self->video_outlet)->copy_pixels
+            = video_outlet_copy_pixels;
+        fl_texture_registrar_register_texture(self->texture_registrar,
+                                              FL_TEXTURE(self->video_outlet));
+
+        auto video_outlet_private
+            = (VideoOutletPrivate*) video_outlet_get_instance_private(self->video_outlet);
+        video_outlet_private->texture_id
+            = reinterpret_cast<int64_t>(FL_TEXTURE(self->video_outlet));
+
+        self->m_flowy_media->onReceiveVideoFrame(
+            [texture_registrar    = self->texture_registrar,
+             video_outlet_ptr     = self->video_outlet,
+             video_outlet_private = video_outlet_private](
+                uint8_t* frame, uint32_t size, int32_t width, int32_t height, int32_t stride)
+                -> void
+            {
+                video_outlet_private->buffer       = frame;
+                video_outlet_private->video_width  = width;
+                video_outlet_private->video_height = height;
+                fl_texture_registrar_mark_texture_frame_available(texture_registrar,
+                                                                  FL_TEXTURE(video_outlet_ptr));
+            });
+
         self->m_flowy_media->StartReceiveVideo();
-        response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
+
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_int(
+            ((VideoOutletPrivate*) video_outlet_get_instance_private(self->video_outlet))
+                ->texture_id)));
     }
     else if (strcmp(method, "stopReceiveVideo") == 0)
     {
@@ -86,6 +118,7 @@ static void flowy_multimedia_plugin_class_init(FlowyMultimediaPluginClass* klass
 static void flowy_multimedia_plugin_init(FlowyMultimediaPlugin* self)
 {
     self->m_flowy_media = std::make_unique<FlowyMedia>();
+    self->video_outlet  = video_outlet_new();
 }
 
 static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call, gpointer user_data)

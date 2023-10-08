@@ -10,12 +10,16 @@ import 'flowy_multimedia_platform_interface.dart';
 class FlowyMultimedia {
   FlowyMultimedia();
 
+  int? textureId;
+
+  bool get isInitialized => textureId != null;
+
   Future<String?> getPlatformVersion() {
     return FlowyMultimediaPlatform.instance.getPlatformVersion();
   }
 
-  Future<void> startReceiveVideo() {
-    return FlowyMultimediaPlatform.instance.startReceiveVideo();
+  Future<int> startReceiveVideo() async {
+    return await FlowyMultimediaPlatform.instance.startReceiveVideo();
   }
 
   Future<void> stopReceiveVideo() {

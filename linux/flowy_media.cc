@@ -1,6 +1,8 @@
 
 #include <gst/gstelement.h>
+#include "gst/gstpad.h"
 #include "include/flowy_media.h"
+#include <gst/video/video.h>
 
 #include <algorithm>
 #include <gst/gst.h>
@@ -188,27 +190,41 @@ void FlowyMedia::InitVideo()
     std::cout << "video receive set up" << std::endl;
 }
 
-int FlowyMedia::on_new_sample(GstElement* sink, gpointer user_data)
+GstFlowReturn FlowyMedia::on_new_sample(GstElement* sink, gpointer gSelf)
 {
-    GstSample* sample;
-    auto*      self = reinterpret_cast<FlowyMedia*>(user_data);
+    GstSample* sample = NULL;
+    GstMapInfo bufferInfo;
 
-    /* Retrieve the buffer */
+    FlowyMedia* self = static_cast<FlowyMedia*>(gSelf);
     g_signal_emit_by_name(sink, "pull-sample", &sample);
-    if (sample)
+
+    if (sample != NULL)
     {
-        GstBuffer* buffer                      = gst_sample_get_buffer(sample);
-        self->m_video_receive_pipeline->buffer = std::move(buffer);
+        GstBuffer* buffer_ = gst_sample_get_buffer(sample);
+        if (buffer_ != NULL)
+        {
+            gst_buffer_map(buffer_, &bufferInfo, GST_MAP_READ);
 
-        GstMapInfo map;
-        gst_buffer_map(buffer, &map, GST_MAP_READ);
-        std::cout << "received " << map.size << " bytes" << std::endl;
+            // Get video width and height
+            GstVideoFrame vframe;
+            GstVideoInfo  video_info;
+            GstCaps*      sampleCaps = gst_sample_get_caps(sample);
+            gst_video_info_from_caps(&video_info, sampleCaps);
+            gst_video_frame_map(&vframe, &video_info, buffer_, GST_MAP_READ);
 
+            self->video_callback_((uint8_t*) bufferInfo.data,
+                                  video_info.size,
+                                  video_info.width,
+                                  video_info.height,
+                                  video_info.stride[0]);
+
+            gst_buffer_unmap(buffer_, &bufferInfo);
+            gst_video_frame_unmap(&vframe);
+        }
         gst_sample_unref(sample);
-        return GST_FLOW_OK;
     }
 
-    return GST_FLOW_ERROR;
+    return GST_FLOW_OK;
 }
 
 FlowyMedia::~FlowyMedia()
@@ -396,4 +412,9 @@ void FlowyMedia::StopReceiveVideo()
 {
     std::cout << "Stopping receive video" << std::endl;
     gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
+}
+
+void FlowyMedia::onReceiveVideoFrame(VideoFrameCallback callback)
+{
+    video_callback_ = callback;
 }

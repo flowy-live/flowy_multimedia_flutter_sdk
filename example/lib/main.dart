@@ -60,6 +60,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  int textureId = 0;
+  void startVideo() {
+    _flowyMultimediaPlugin.startReceiveVideo().then((value) {
+      setState(() {
+        textureId = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -80,15 +89,13 @@ class _MyAppState extends State<MyApp> {
               //         _isRecording ? 'Stop Recording' : 'Start Recording')),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  onPressed: () async {
-                    _flowyMultimediaPlugin.startReceiveVideo();
-                  },
-                  child: Text("Start receive video")),
-              Container(
+                  onPressed: startVideo,
+                  child: const Text("Start receive video")),
+              SizedBox(
                   height: 100,
                   width: 100,
                   child: Texture(
-                    textureId: 1,
+                    textureId: textureId,
                   ))
             ],
           ),
