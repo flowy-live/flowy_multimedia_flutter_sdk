@@ -95,86 +95,86 @@ void FlowyMedia::Init()
     //     g_object_set(file_sink, "location", "test.mp4", NULL);
     // }
 
-    {
-        if (m_video_receive_pipeline != nullptr)
-        {
-            std::cerr << "MEDIA: already initialized pipeline" << std::endl;
-            return;
-        }
-
-        std::cout << "initializing video receive" << std::endl;
-
-        m_video_receive_pipeline->src = gst_element_factory_make("v4l2src", "video");
-        m_video_receive_pipeline->video_convert
-            = gst_element_factory_make("videoconvert", "videoconvert");
-        m_video_receive_pipeline->video_sink = gst_element_factory_make("appsink", "sink");
-
-        // set callback for appsink
-        g_object_set(G_OBJECT(m_video_receive_pipeline->video_sink),
-                     "emit-signals",
-                     TRUE,
-                     "sync",
-                     FALSE,
-                     nullptr);
-        g_signal_connect(
-            m_video_receive_pipeline->video_sink, "new-sample", G_CALLBACK(on_new_sample), this);
-
-        if (!m_video_receive_pipeline->src || !m_video_receive_pipeline->video_convert
-            || !m_video_receive_pipeline->video_sink)
-        {
-            std::cerr << "failed to create elements" << std::endl;
-            return;
-        }
-
-        m_video_receive_pipeline->pipeline = gst_pipeline_new("local_capture");
-
-        gst_bin_add_many(GST_BIN(m_video_receive_pipeline->pipeline),
-                         m_video_receive_pipeline->src,
-                         m_video_receive_pipeline->video_convert,
-                         m_video_receive_pipeline->video_sink,
-                         nullptr);
-        if (!gst_element_link_many(m_video_receive_pipeline->src,
-                                   m_video_receive_pipeline->video_convert,
-                                   m_video_receive_pipeline->video_sink,
-                                   nullptr))
-        {
-            g_printerr("Elements could not be linked.\n");
-        }
-
-        gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
-
-        m_video_receive_pipeline->bus = gst_element_get_bus(m_video_receive_pipeline->pipeline);
-        gst_bus_add_watch(
-            m_video_receive_pipeline->bus,
-            [](GstBus* bus, GstMessage* msg, gpointer data)
-            {
-                std::cout << "message type: " << GST_MESSAGE_TYPE(msg) << std::endl;
-
-                switch (GST_MESSAGE_TYPE(msg))
-                {
-                    case GST_MESSAGE_ERROR:
-                    {
-                        GError* err;
-                        gchar*  debug;
-                        gst_message_parse_error(msg, &err, &debug);
-                        g_printerr("Error: %s\n", err->message);
-                        g_error_free(err);
-                        g_free(debug);
-                        break;
-                    }
-                    case GST_MESSAGE_EOS:
-                        g_print("End of stream\n");
-                        break;
-                    default:
-                        break;
-                }
-
-                return (int) G_SOURCE_CONTINUE;
-            },
-            nullptr);
-
-        std::cout << "video receive set up" << std::endl;
-    }
+    // {
+    //     if (m_video_receive_pipeline != nullptr)
+    //     {
+    //         std::cerr << "MEDIA: already initialized pipeline" << std::endl;
+    //         return;
+    //     }
+    //
+    //     std::cout << "initializing video receive" << std::endl;
+    //
+    //     m_video_receive_pipeline->src = gst_element_factory_make("v4l2src", "video");
+    //     m_video_receive_pipeline->video_convert
+    //         = gst_element_factory_make("videoconvert", "videoconvert");
+    //     m_video_receive_pipeline->video_sink = gst_element_factory_make("appsink", "sink");
+    //
+    //     // set callback for appsink
+    //     g_object_set(G_OBJECT(m_video_receive_pipeline->video_sink),
+    //                  "emit-signals",
+    //                  TRUE,
+    //                  "sync",
+    //                  FALSE,
+    //                  nullptr);
+    //     g_signal_connect(
+    //         m_video_receive_pipeline->video_sink, "new-sample", G_CALLBACK(on_new_sample), this);
+    //
+    //     if (!m_video_receive_pipeline->src || !m_video_receive_pipeline->video_convert
+    //         || !m_video_receive_pipeline->video_sink)
+    //     {
+    //         std::cerr << "failed to create elements" << std::endl;
+    //         return;
+    //     }
+    //
+    //     m_video_receive_pipeline->pipeline = gst_pipeline_new("local_capture");
+    //
+    //     gst_bin_add_many(GST_BIN(m_video_receive_pipeline->pipeline),
+    //                      m_video_receive_pipeline->src,
+    //                      m_video_receive_pipeline->video_convert,
+    //                      m_video_receive_pipeline->video_sink,
+    //                      nullptr);
+    //     if (!gst_element_link_many(m_video_receive_pipeline->src,
+    //                                m_video_receive_pipeline->video_convert,
+    //                                m_video_receive_pipeline->video_sink,
+    //                                nullptr))
+    //     {
+    //         g_printerr("Elements could not be linked.\n");
+    //     }
+    //
+    //     gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
+    //
+    //     m_video_receive_pipeline->bus = gst_element_get_bus(m_video_receive_pipeline->pipeline);
+    //     gst_bus_add_watch(
+    //         m_video_receive_pipeline->bus,
+    //         [](GstBus* bus, GstMessage* msg, gpointer data)
+    //         {
+    //             std::cout << "message type: " << GST_MESSAGE_TYPE(msg) << std::endl;
+    //
+    //             switch (GST_MESSAGE_TYPE(msg))
+    //             {
+    //                 case GST_MESSAGE_ERROR:
+    //                 {
+    //                     GError* err;
+    //                     gchar*  debug;
+    //                     gst_message_parse_error(msg, &err, &debug);
+    //                     g_printerr("Error: %s\n", err->message);
+    //                     g_error_free(err);
+    //                     g_free(debug);
+    //                     break;
+    //                 }
+    //                 case GST_MESSAGE_EOS:
+    //                     g_print("End of stream\n");
+    //                     break;
+    //                 default:
+    //                     break;
+    //             }
+    //
+    //             return (int) G_SOURCE_CONTINUE;
+    //         },
+    //         nullptr);
+    //
+    //     std::cout << "video receive set up" << std::endl;
+    // }
 }
 
 int FlowyMedia::on_new_sample(GstElement* sink, gpointer user_data)
