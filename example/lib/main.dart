@@ -72,20 +72,18 @@ class _MyAppState extends State<MyApp> {
             children: [
               Text('Running on: $_platformVersion\n'),
               ElevatedButton(
-                onPressed: () async {},
-                child: const Text('Start Audio'),
-              ),
-              ElevatedButton(
-                onPressed: () async {},
-                child: const Text('Stop Audio'),
-              ),
-              ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: () async {
                     toggleRecording();
                   },
                   child: Text(
                       _isRecording ? 'Stop Recording' : 'Start Recording')),
+              Container(
+                  height: 100,
+                  width: 100,
+                  child: Texture(
+                    textureId: 1,
+                  ))
             ],
           ),
         ),

@@ -32,7 +32,16 @@ static void flowy_multimedia_plugin_handle_method_call(FlowyMultimediaPlugin* se
     {
         response = get_platform_version();
     }
-    else if (strcmp(method, "init") == 0)
+    else if (strcmp(method, "startReceiveVideo") == 0)
+    {
+    }
+    else if (strcmp(method, "stopReceiveVideo") == 0)
+    {
+    }
+    else if (strcmp(method, "startRecord") == 0)
+    {
+    }
+    else if (strcmp(method, "stopRecord") == 0)
     {
     }
     else
