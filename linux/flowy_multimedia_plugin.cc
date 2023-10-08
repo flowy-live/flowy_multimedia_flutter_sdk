@@ -17,8 +17,8 @@
 
 struct _FlowyMultimediaPlugin
 {
-    GObject                                    parent_instance;
-    std::unique_ptr<FlowyMedia>                m_flowy_media;
+    GObject                     parent_instance;
+    std::unique_ptr<FlowyMedia> m_flowy_media;
     // std::unique_ptr<FlPixelBufferTexture>      texture;
     // std::unique_ptr<FlutterDesktopPixelBuffer> pixel_buffer;
 };
@@ -39,6 +39,7 @@ static void flowy_multimedia_plugin_handle_method_call(FlowyMultimediaPlugin* se
     }
     else if (strcmp(method, "startReceiveVideo") == 0)
     {
+        self->m_flowy_media->InitVideo();
     }
     else if (strcmp(method, "stopReceiveVideo") == 0)
     {
@@ -79,7 +80,6 @@ static void flowy_multimedia_plugin_class_init(FlowyMultimediaPluginClass* klass
 static void flowy_multimedia_plugin_init(FlowyMultimediaPlugin* self)
 {
     self->m_flowy_media = std::make_unique<FlowyMedia>();
-    // self->m_flowy_media->Init();
 }
 
 static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call, gpointer user_data)

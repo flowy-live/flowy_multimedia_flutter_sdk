@@ -71,13 +71,19 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               Text('Running on: $_platformVersion\n'),
+              // ElevatedButton(
+              //     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              //     onPressed: () async {
+              //       toggleRecording();
+              //     },
+              //     child: Text(
+              //         _isRecording ? 'Stop Recording' : 'Start Recording')),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: () async {
-                    toggleRecording();
+                    _flowyMultimediaPlugin.startReceiveVideo();
                   },
-                  child: Text(
-                      _isRecording ? 'Stop Recording' : 'Start Recording')),
+                  child: Text("Start receive video")),
               Container(
                   height: 100,
                   width: 100,

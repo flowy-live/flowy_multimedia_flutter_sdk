@@ -11,11 +11,8 @@ public:
     FlowyMedia();
     ~FlowyMedia();
 
-    /**
-     * Initializes pipeline and elements and starts receiving media
-     * NOTE: only audio pipeline is initialized for now
-     */
-    void Init();
+    void InitAudio();
+    void InitVideo();
 
     void StartSendLiveAudio();
     void StopSendLiveAudio();
