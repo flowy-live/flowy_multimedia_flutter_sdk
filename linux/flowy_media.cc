@@ -105,7 +105,7 @@ void FlowyMedia::InitVideo()
 
     std::cout << "initializing video receive" << std::endl;
 
-    m_video_receive_pipeline->src = gst_element_factory_make("v4l2src", "video");
+    m_video_receive_pipeline->src = gst_element_factory_make("videotestsrc", "video");
     m_video_receive_pipeline->video_convert
         = gst_element_factory_make("videoconvert", "videoconvert");
     m_video_receive_pipeline->video_sink = gst_element_factory_make("appsink", "sink");
