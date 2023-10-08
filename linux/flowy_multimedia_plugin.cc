@@ -2,12 +2,14 @@
 
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
+#include <memory>
 #include <sys/utsname.h>
 
 #include <iostream>
 
 #include <cstring>
 
+#include "include/flowy_media.h"
 #include "flowy_multimedia_plugin_private.h"
 
 #define FLOWY_MULTIMEDIA_PLUGIN(obj)                                                               \
@@ -15,7 +17,8 @@
 
 struct _FlowyMultimediaPlugin
 {
-    GObject parent_instance;
+    GObject                     parent_instance;
+    std::unique_ptr<FlowyMedia> m_flowy_media;
 };
 
 G_DEFINE_TYPE(FlowyMultimediaPlugin, flowy_multimedia_plugin, g_object_get_type())
@@ -73,6 +76,8 @@ static void flowy_multimedia_plugin_class_init(FlowyMultimediaPluginClass* klass
 
 static void flowy_multimedia_plugin_init(FlowyMultimediaPlugin* self)
 {
+    self->m_flowy_media = std::make_unique<FlowyMedia>();
+    self->m_flowy_media->Init();
 }
 
 static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call, gpointer user_data)
