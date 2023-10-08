@@ -36,7 +36,7 @@ abstract class FlowyMultimediaPlatform extends PlatformInterface {
   }
 
   /// returns textureId
-  Future<String> startReceiveVideo() {
+  Future<void> startReceiveVideo() {
     throw UnimplementedError('startReceiveVideo() has not been implemented.');
   }
 
