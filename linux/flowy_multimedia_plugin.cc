@@ -79,7 +79,7 @@ static void flowy_multimedia_plugin_class_init(FlowyMultimediaPluginClass* klass
 static void flowy_multimedia_plugin_init(FlowyMultimediaPlugin* self)
 {
     self->m_flowy_media = std::make_unique<FlowyMedia>();
-    self->m_flowy_media->Init();
+    // self->m_flowy_media->Init();
 }
 
 static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call, gpointer user_data)
