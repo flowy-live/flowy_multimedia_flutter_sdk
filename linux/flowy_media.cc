@@ -151,30 +151,7 @@ void FlowyMedia::InitVideo()
     m_video_receive_pipeline->bus = gst_element_get_bus(m_video_receive_pipeline->pipeline);
     gst_bus_add_watch(
         m_video_receive_pipeline->bus,
-        [](GstBus* bus, GstMessage* msg, gpointer data)
-        {
-            switch (GST_MESSAGE_TYPE(msg))
-            {
-                case GST_MESSAGE_ERROR:
-                {
-                    GError* err;
-                    gchar*  debug;
-                    gst_message_parse_error(msg, &err, &debug);
-                    g_printerr("Error: %s\n", err->message);
-                    std::cerr << "Error: " << err->message << std::endl;
-                    g_error_free(err);
-                    g_free(debug);
-                    break;
-                }
-                case GST_MESSAGE_EOS:
-                    g_print("End of stream\n");
-                    break;
-                default:
-                    break;
-            }
-
-            return (int) G_SOURCE_CONTINUE;
-        },
+        HandleGstMessage,
         nullptr);
 
     gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
@@ -190,6 +167,8 @@ GstFlowReturn FlowyMedia::on_new_sample(GstElement* sink, gpointer gSelf)
     FlowyMedia* self = static_cast<FlowyMedia*>(gSelf);
     g_signal_emit_by_name(sink, "pull-sample", &sample);
 
+    std::cout << "got video sample" << std::endl;
+
     if (sample != NULL)
     {
         GstBuffer* buffer_ = gst_sample_get_buffer(sample);
@@ -203,11 +182,6 @@ GstFlowReturn FlowyMedia::on_new_sample(GstElement* sink, gpointer gSelf)
             GstCaps*      sampleCaps = gst_sample_get_caps(sample);
             gst_video_info_from_caps(&video_info, sampleCaps);
             gst_video_frame_map(&vframe, &video_info, buffer_, GST_MAP_READ);
-
-            std::cout << "video width: " << video_info.width << std::endl;
-            std::cout << "video height: " << video_info.height << std::endl;
-            std::cout << "video stride: " << video_info.stride[0] << std::endl;
-            std::cout << "video size: " << video_info.size << std::endl;
 
             self->video_callback_((uint8_t*) bufferInfo.data,
                                   video_info.size,
@@ -313,7 +287,7 @@ std::string FlowyMedia::StopRecord()
     return std::string("./test.mp4");
 }
 
-GstBusSyncReply FlowyMedia::HandleGstMessage(GstBus* bus, GstMessage* message, gpointer user_data)
+gboolean FlowyMedia::HandleGstMessage(GstBus* bus, GstMessage* message, gpointer user_data)
 {
     switch (GST_MESSAGE_TYPE(message))
     {
@@ -349,36 +323,6 @@ GstBusSyncReply FlowyMedia::HandleGstMessage(GstBus* bus, GstMessage* message, g
             break;
     }
     return GST_BUS_PASS;
-}
-
-void FlowyMedia::HandoffHandler(GstElement* fakesink,
-                                GstBuffer*  buf,
-                                GstPad*     new_pad,
-                                gpointer    user_data)
-{
-    auto* self      = reinterpret_cast<FlowyMedia*>(user_data);
-    auto* caps      = gst_pad_get_current_caps(new_pad);
-    auto* structure = gst_caps_get_structure(caps, 0);
-
-    int width;
-    int height;
-    gst_structure_get_int(structure, "width", &width);
-    gst_structure_get_int(structure, "height", &height);
-    if (width != self->m_video_receive_pipeline->width
-        || height != self->m_video_receive_pipeline->height)
-    {
-        self->m_video_receive_pipeline->width  = width;
-        self->m_video_receive_pipeline->height = height;
-        self->m_video_receive_pipeline->pixels.reset(new uint32_t[width * height]);
-        std::cout << "Pixel buffer size: width = " << width << ", height = " << height << std::endl;
-    }
-
-    if (self->m_video_receive_pipeline->last_buffer)
-    {
-        gst_buffer_unref(self->m_video_receive_pipeline->last_buffer);
-        self->m_video_receive_pipeline->last_buffer = nullptr;
-    }
-    self->m_video_receive_pipeline->last_buffer = gst_buffer_ref(buf);
 }
 
 void FlowyMedia::StartReceiveVideo()

@@ -55,9 +55,8 @@ private:
         GstBuffer*                last_buffer;
     };
     GstVideoPipeline*      m_video_receive_pipeline;
-    static GstBusSyncReply HandleGstMessage(GstBus* bus, GstMessage* message, gpointer user_data);
+    static gboolean HandleGstMessage(GstBus* bus, GstMessage* message, gpointer user_data);
     static GstFlowReturn   on_new_sample(GstElement* sink, gpointer user_data);
-    void HandoffHandler(GstElement* fakesink, GstBuffer* buf, GstPad* new_pad, gpointer user_data);
 
     VideoFrameCallback video_callback_;
 };
