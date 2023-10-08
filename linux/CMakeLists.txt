@@ -15,11 +15,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PLUGIN_NAME "flowy_multimedia_plugin")
 
 find_package(PkgConfig)
-pkg_search_module(GLIB REQUIRED glib-2.0)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
-pkg_check_modules(GST_APP REQUIRED gstreamer-app-1.0)
-pkg_check_modules(GST_VIDEO REQUIRED gstreamer-video-1.0)
-include_directories(${GSTREAMER_INCLUDE_DIRS} ${GLIB2_INCLUDE_DIRS})
+include_directories(${GSTREAMER_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS})
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
@@ -58,7 +56,11 @@ target_include_directories(${PLUGIN_NAME}
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
-target_link_libraries(${PLUGIN_NAME} PRIVATE ${GST_APP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
+target_link_libraries(${PLUGIN_NAME}
+  PRIVATE
+    ${GLIB_LIBRARIES}
+    ${GSTREAMER_LIBRARIES}
+)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
