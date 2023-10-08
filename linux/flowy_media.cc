@@ -112,7 +112,7 @@ void FlowyMedia::InitVideo()
     std::cout << "initializing video receive" << std::endl;
 
     m_video_receive_pipeline->pipeline = gst_pipeline_new("test-video");
-    GstElement* video_src              = gst_element_factory_make("videotestsrc", "video-source");
+    GstElement* video_src              = gst_element_factory_make("v4l2src", "video-source");
     g_assert(video_src);
     GstElement* video_convert = gst_element_factory_make("videoconvert", "video-convert");
     g_assert(video_convert);

@@ -88,7 +88,6 @@ class _MyAppState extends State<MyApp> {
               //     child: Text(
               //         _isRecording ? 'Stop Recording' : 'Start Recording')),
               ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: startVideo,
                   child: const Text("Start receive video")),
               SizedBox(
