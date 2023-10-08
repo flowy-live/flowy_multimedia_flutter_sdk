@@ -19,7 +19,11 @@ class FlowyMultimedia {
   }
 
   Future<int> startReceiveVideo() async {
-    return await FlowyMultimediaPlatform.instance.startReceiveVideo();
+    int textureId = await FlowyMultimediaPlatform.instance.startReceiveVideo();
+
+    print('textureId received on frontend: $textureId');
+
+    return textureId;
   }
 
   Future<void> stopReceiveVideo() {

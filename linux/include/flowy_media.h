@@ -45,8 +45,6 @@ private:
     struct GstVideoPipeline
     {
         GstElement* pipeline;
-        GstElement* src;
-        GstElement* video_convert;
         GstElement* video_sink;
         GstBus*     bus;
         GstBuffer*  buffer;

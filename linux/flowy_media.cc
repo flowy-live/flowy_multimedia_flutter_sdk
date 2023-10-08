@@ -1,6 +1,7 @@
 
 #include <gst/gstelement.h>
 #include "gst/gstpad.h"
+#include "gst/gstparse.h"
 #include "include/flowy_media.h"
 #include <gst/video/video.h>
 
@@ -109,25 +110,11 @@ void FlowyMedia::InitVideo()
 
     std::cout << "initializing video receive" << std::endl;
 
-    m_video_receive_pipeline->src = gst_element_factory_make("videotestsrc", "video");
-    if (!m_video_receive_pipeline->src)
-    {
-        std::cerr << "failed to create source element" << std::endl;
-        return;
-    }
-    m_video_receive_pipeline->video_convert
-        = gst_element_factory_make("videoconvert", "videoconvert");
-    if (!m_video_receive_pipeline->src)
-    {
-        std::cerr << "failed to create videoconvert" << std::endl;
-        return;
-    }
-    m_video_receive_pipeline->video_sink = gst_element_factory_make("appsink", "sink");
-    if (!m_video_receive_pipeline->src)
-    {
-        std::cerr << "failed to create sink element" << std::endl;
-        return;
-    }
+    m_video_receive_pipeline->pipeline = gst_parse_launch(
+        "videotestsrc ! videoconvert ! video/x-raw,format=RGBA ! appsink name=sink", nullptr);
+
+    m_video_receive_pipeline->video_sink
+        = gst_bin_get_by_name(GST_BIN(m_video_receive_pipeline->pipeline), "sink");
 
     // set callback for appsink
     g_object_set(G_OBJECT(m_video_receive_pipeline->video_sink),
@@ -140,20 +127,6 @@ void FlowyMedia::InitVideo()
         m_video_receive_pipeline->video_sink, "new-sample", G_CALLBACK(on_new_sample), this);
 
     m_video_receive_pipeline->pipeline = gst_pipeline_new("video-receive");
-
-    gst_bin_add_many(GST_BIN(m_video_receive_pipeline->pipeline),
-                     m_video_receive_pipeline->src,
-                     m_video_receive_pipeline->video_convert,
-                     m_video_receive_pipeline->video_sink,
-                     nullptr);
-    if (!gst_element_link_many(m_video_receive_pipeline->src,
-                               m_video_receive_pipeline->video_convert,
-                               m_video_receive_pipeline->video_sink,
-                               nullptr))
-    {
-        g_printerr("Elements could not be linked.\n");
-        return;
-    }
 
     gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
 
@@ -272,18 +245,6 @@ FlowyMedia::~FlowyMedia()
     if (m_video_receive_pipeline->pixels)
     {
         m_video_receive_pipeline->pixels.reset();
-    }
-
-    if (m_video_receive_pipeline->src)
-    {
-        gst_object_unref(m_video_receive_pipeline->src);
-        m_video_receive_pipeline->src = nullptr;
-    }
-
-    if (m_video_receive_pipeline->video_convert)
-    {
-        gst_object_unref(m_video_receive_pipeline->video_convert);
-        m_video_receive_pipeline->video_convert = nullptr;
     }
 
     gst_deinit();
