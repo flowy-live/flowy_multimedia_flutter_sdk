@@ -27,11 +27,32 @@ abstract class FlowyMultimediaPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<String?> init() {
-    throw UnimplementedError('init() has not been implemented.');
+  /// initializes the current user with the media server
+  Future<void> register() {
+    throw UnimplementedError('register() has not been implemented.');
   }
 
-  Future<String?> startSendLiveAudio() {
+  /// joins the room with the given conversationId for the
+  /// media server to know to route media to the user
+  Future<void> joinRoom(String conversationId) {
+    throw UnimplementedError("joinRoom() has not been implemented.");
+  }
+
+  /// unsubscribe from getting media from anywhere
+  Future<void> leave() {
+    throw UnimplementedError('leave() has not been implemented.');
+  }
+
+  /// returns textureId
+  Future<int> startReceiveVideo() {
+    throw UnimplementedError('startReceiveVideo() has not been implemented.');
+  }
+
+  Future<void> stopReceiveVideo() {
+    throw UnimplementedError('stopReceiveVideo() has not been implemented.');
+  }
+
+  Future<String?> startSendLiveAudio(String conversationId) {
     throw UnimplementedError('startSendLiveAudio() has not been implemented.');
   }
 
@@ -39,11 +60,15 @@ abstract class FlowyMultimediaPlatform extends PlatformInterface {
     throw UnimplementedError('stopSendLiveAudio() has not been implemented.');
   }
 
-  Future<String?> startRecord() {
+  Future<String?> startSendLiveVideo(String conversationId) {
+    throw UnimplementedError('startSendLiveVideo() has not been implemented.');
+  }
+
+  Future<void> startRecord() {
     throw UnimplementedError('startRecord() has not been implemented.');
   }
 
-  Future<String?> stopRecord() {
+  Future<String> stopRecord() {
     throw UnimplementedError('stopRecord() has not been implemented.');
   }
 }

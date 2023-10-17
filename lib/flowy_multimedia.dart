@@ -8,32 +8,33 @@
 import 'flowy_multimedia_platform_interface.dart';
 
 class FlowyMultimedia {
-  FlowyMultimedia() {
-    init();
-  }
+  FlowyMultimedia();
 
+  int? textureId;
+
+  bool get isInitialized => textureId != null;
 
   Future<String?> getPlatformVersion() {
     return FlowyMultimediaPlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> init() {
-    return FlowyMultimediaPlatform.instance.init();
+  Future<int> startReceiveVideo() async {
+    int textureId = await FlowyMultimediaPlatform.instance.startReceiveVideo();
+
+    print('textureId received on frontend: $textureId');
+
+    return textureId;
   }
 
-  Future<String?> startSendLiveAudio() {
-    return FlowyMultimediaPlatform.instance.startSendLiveAudio();
+  Future<void> stopReceiveVideo() {
+    return FlowyMultimediaPlatform.instance.stopReceiveVideo();
   }
 
-  Future<String?> stopSendLiveAudio() {
-    return FlowyMultimediaPlatform.instance.stopSendLiveAudio();
-  }
-
-  Future<String?> startRecord() {
+  Future<void> startRecord() {
     return FlowyMultimediaPlatform.instance.startRecord();
   }
 
-  Future<String?> stopRecord() {
+  Future<String> stopRecord() {
     return FlowyMultimediaPlatform.instance.stopRecord();
   }
 }
