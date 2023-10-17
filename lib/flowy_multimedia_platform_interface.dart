@@ -27,12 +27,20 @@ abstract class FlowyMultimediaPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<void> startReceiveAudio() {
-    throw UnimplementedError('startReceiveAudio() has not been implemented.');
+  /// initializes the current user with the media server
+  Future<void> register() {
+    throw UnimplementedError('register() has not been implemented.');
   }
 
-  Future<void> stopReceiveAudio() {
-    throw UnimplementedError('stopReceiveAudio() has not been implemented.');
+  /// joins the room with the given conversationId for the
+  /// media server to know to route media to the user
+  Future<void> joinRoom(String conversationId) {
+    throw UnimplementedError("joinRoom() has not been implemented.");
+  }
+
+  /// unsubscribe from getting media from anywhere
+  Future<void> leave() {
+    throw UnimplementedError('leave() has not been implemented.');
   }
 
   /// returns textureId
