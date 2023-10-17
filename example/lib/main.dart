@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
 
   int textureId = 0;
   void startVideo() {
-    _flowyMultimediaPlugin.startReceiveVideo().then((value) {
+    _flowyMultimediaPlugin.startPublish().then((value) {
       setState(() {
         textureId = value;
       });

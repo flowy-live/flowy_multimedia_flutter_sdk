@@ -18,16 +18,24 @@ class FlowyMultimedia {
     return FlowyMultimediaPlatform.instance.getPlatformVersion();
   }
 
-  Future<int> startReceiveVideo() async {
-    int textureId = await FlowyMultimediaPlatform.instance.startReceiveVideo();
+  Future<int> subscribeToRoom(String roomId) async {
+    int textureId = await FlowyMultimediaPlatform.instance.subscribeToRoom(roomId);
 
     print('textureId received on frontend: $textureId');
 
     return textureId;
   }
 
-  Future<void> stopReceiveVideo() {
-    return FlowyMultimediaPlatform.instance.stopReceiveVideo();
+  /// unsubscribe from getting media from anywhere
+  void leave() {
+  }
+
+  Future<int> startPublish() async {
+    return await FlowyMultimediaPlatform.instance.startPublish();
+  }
+
+  Future<void> stopPublish() {
+    return FlowyMultimediaPlatform.instance.stopPublish();
   }
 
   Future<void> startRecord() {
