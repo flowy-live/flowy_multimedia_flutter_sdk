@@ -120,7 +120,7 @@ void FlowyMedia::InitVideo()
     g_assert(m_video_receive_pipeline->video_sink);
 
     // set caps for video convert
-    GstCaps*    video_caps   = gst_caps_from_string("video/x-raw,format=BGRA");
+    GstCaps*    video_caps   = gst_caps_from_string("video/x-raw,format=RGBA");
     GstElement* video_filter = gst_element_factory_make("capsfilter", "video-filter");
     g_assert(video_filter);
     g_object_set(G_OBJECT(video_filter), "caps", video_caps, NULL);

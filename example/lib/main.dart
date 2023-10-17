@@ -91,8 +91,8 @@ class _MyAppState extends State<MyApp> {
                   onPressed: startVideo,
                   child: const Text("Start receive video")),
               SizedBox(
-                  height: 300,
-                  width: 500,
+                  height: 600,
+                  width: 800,
                   child: Texture(
                     textureId: textureId,
                   ))
