@@ -22,11 +22,44 @@ FlowyMedia::FlowyMedia()
     m_audio_receive_pipeline = nullptr;
     m_record_pipeline        = nullptr;
 
+    m_video_send_pipeline              = new GstVideoPipeline();
+    m_video_send_pipeline->pipeline    = nullptr;
     m_video_receive_pipeline           = new GstVideoPipeline();
     m_video_receive_pipeline->pipeline = nullptr;
+
+    this->InitVideoReceivePipeline();
+    this->InitVideoSendPipeline();
 }
 
-void FlowyMedia::InitAudio()
+void FlowyMedia::Subscribe(const std::string& roomId)
+{
+    if (m_video_receive_pipeline == nullptr || m_video_receive_pipeline->pipeline == nullptr)
+    {
+        std::cerr << "MEDIA: not initialized" << std::endl;
+        return;
+    }
+
+    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PLAYING);
+}
+
+void FlowyMedia::InitAudioReceivePipeline()
+{
+    if (m_audio_receive_pipeline != nullptr)
+    {
+        std::cerr << "MEDIA: already initialized pipeline" << std::endl;
+        return;
+    }
+
+    m_audio_receive_pipeline = gst_parse_launch(
+        "udpsrc port=5003 ! "
+        "application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! queue ! "
+        "rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink",
+        NULL);
+    std::cout << "Starting receive audio pipeline" << std::endl;
+    gst_element_set_state(m_audio_receive_pipeline, GST_STATE_PLAYING);
+}
+
+void FlowyMedia::InitAudioSendPipeline()
 {
     if (m_audio_send_pipeline != nullptr)
     {
@@ -41,15 +74,72 @@ void FlowyMedia::InitAudio()
         "udpsink host=192.168.50.92 port=5002",
         NULL);
     gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
+}
 
-    m_audio_receive_pipeline = gst_parse_launch(
-        "udpsrc port=5003 ! "
-        "application/x-rtp,media=audio,payload=8,clock-rate=8000,encoding-name=PCMA ! queue ! "
-        "rtppcmadepay ! alawdec ! audioconvert ! audioresample ! alsasink",
+void FlowyMedia::InitVideoReceivePipeline()
+{
+    if (m_video_receive_pipeline->pipeline != nullptr)
+    {
+        std::cerr << "MEDIA: already initialized pipeline" << std::endl;
+        return;
+    }
+
+    std::cout << "initializing video receive" << std::endl;
+
+    m_video_receive_pipeline->pipeline = gst_parse_launch(
+        "udpsrc port=5001 address=0.0.0.0 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! "
+        "rtph264depay ! h264parse ! decodebin ! videoconvert ! video/x-raw,format=RGBA ! appsink name=sink",
         NULL);
-    std::cout << "Starting receive audio pipeline" << std::endl;
-    gst_element_set_state(m_audio_receive_pipeline, GST_STATE_PLAYING);
 
+    // get sink element from pipeline
+    m_video_receive_pipeline->video_sink
+        = gst_bin_get_by_name(GST_BIN(m_video_receive_pipeline->pipeline), "sink");
+    g_assert(m_video_receive_pipeline->video_sink);
+
+    // set callback for appsink
+    g_object_set(G_OBJECT(m_video_receive_pipeline->video_sink),
+                 "emit-signals",
+                 TRUE,
+                 "sync",
+                 FALSE,
+                 nullptr);
+    g_signal_connect(
+        m_video_receive_pipeline->video_sink, "new-sample", G_CALLBACK(on_new_sample_remote), this);
+
+    // add bus callback
+    GstBus* bus = gst_element_get_bus(m_video_receive_pipeline->pipeline);
+    gst_bus_add_watch(bus, HandleGstMessage, nullptr);
+
+    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
+
+    std::cout << "video receive set up" << std::endl;
+}
+
+void FlowyMedia::InitVideoSendPipeline()
+{
+    if (m_video_send_pipeline->pipeline != nullptr)
+    {
+        std::cerr << "MEDIA: already initialized pipeline" << std::endl;
+        return;
+    }
+
+    std::cout << "initializing video send" << std::endl;
+
+    m_video_send_pipeline->pipeline = gst_parse_launch(
+        "videotestsrc ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! rtph264pay ! udpsink port=5000 host=0.0.0.0",
+        NULL);
+
+    // add bus callback
+    GstBus* bus = gst_element_get_bus(m_video_send_pipeline->pipeline);
+    gst_bus_add_watch(bus, HandleGstMessage, nullptr);
+
+    gst_element_set_state(m_video_send_pipeline->pipeline, GST_STATE_PAUSED);
+
+    std::cout << "video receive set up" << std::endl;
+}
+
+void FlowyMedia::InitRecordPipeline()
+{
     // TODO: may need to fix based on camera device on embedded
     // TODO: use opus maybe for audio here
     GstElement* audio_src     = gst_element_factory_make("audiotestsrc", "audio-source");
@@ -101,65 +191,7 @@ void FlowyMedia::InitAudio()
     g_object_set(file_sink, "location", "test.mp4", NULL);
 }
 
-void FlowyMedia::InitVideo()
-{
-    if (m_video_receive_pipeline->pipeline != nullptr)
-    {
-        std::cerr << "MEDIA: already initialized pipeline" << std::endl;
-        return;
-    }
-
-    std::cout << "initializing video receive" << std::endl;
-
-    m_video_receive_pipeline->pipeline = gst_pipeline_new("test-video");
-    GstElement* video_src              = gst_element_factory_make("v4l2src", "video-source");
-    g_assert(video_src);
-    GstElement* video_convert = gst_element_factory_make("videoconvert", "video-convert");
-    g_assert(video_convert);
-    m_video_receive_pipeline->video_sink = gst_element_factory_make("appsink", "video-sink");
-    g_assert(m_video_receive_pipeline->video_sink);
-
-    // set caps for video convert
-    GstCaps*    video_caps   = gst_caps_from_string("video/x-raw,format=RGBA");
-    GstElement* video_filter = gst_element_factory_make("capsfilter", "video-filter");
-    g_assert(video_filter);
-    g_object_set(G_OBJECT(video_filter), "caps", video_caps, NULL);
-
-    // set callback for appsink
-    g_object_set(G_OBJECT(m_video_receive_pipeline->video_sink),
-                 "emit-signals",
-                 TRUE,
-                 "sync",
-                 FALSE,
-                 nullptr);
-    g_signal_connect(
-        m_video_receive_pipeline->video_sink, "new-sample", G_CALLBACK(on_new_sample), this);
-
-    // add elements to pipeline
-    gst_bin_add_many(GST_BIN(m_video_receive_pipeline->pipeline),
-                     video_src,
-                     video_filter,
-                     video_convert,
-                     m_video_receive_pipeline->video_sink,
-                     NULL);
-
-    g_assert(gst_element_link(video_src, video_convert));
-    g_assert(gst_element_link(video_convert, video_filter));
-    g_assert(gst_element_link(video_filter, m_video_receive_pipeline->video_sink));
-
-    // add bus callback
-    m_video_receive_pipeline->bus = gst_element_get_bus(m_video_receive_pipeline->pipeline);
-    gst_bus_add_watch(
-        m_video_receive_pipeline->bus,
-        HandleGstMessage,
-        nullptr);
-
-    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
-
-    std::cout << "video receive set up" << std::endl;
-}
-
-GstFlowReturn FlowyMedia::on_new_sample(GstElement* sink, gpointer gSelf)
+GstFlowReturn FlowyMedia::on_new_sample_local(GstElement* sink, gpointer gSelf)
 {
     GstSample* sample = NULL;
     GstMapInfo bufferInfo;
@@ -183,11 +215,60 @@ GstFlowReturn FlowyMedia::on_new_sample(GstElement* sink, gpointer gSelf)
             gst_video_info_from_caps(&video_info, sampleCaps);
             gst_video_frame_map(&vframe, &video_info, buffer_, GST_MAP_READ);
 
-            self->video_callback_((uint8_t*) bufferInfo.data,
-                                  video_info.size,
-                                  video_info.width,
-                                  video_info.height,
-                                  video_info.stride[0]);
+            self->m_video_send_pipeline->callback((uint8_t*) bufferInfo.data,
+                                                  video_info.size,
+                                                  video_info.width,
+                                                  video_info.height,
+                                                  video_info.stride[0]);
+
+            gst_buffer_unmap(buffer_, &bufferInfo);
+            gst_video_frame_unmap(&vframe);
+        }
+        gst_sample_unref(sample);
+    }
+
+    return GST_FLOW_OK;
+}
+
+GstFlowReturn FlowyMedia::on_new_sample_remote(GstElement* sink, gpointer gSelf)
+{
+    GstSample* sample = NULL;
+    GstMapInfo bufferInfo;
+
+    FlowyMedia* self = static_cast<FlowyMedia*>(gSelf);
+    g_signal_emit_by_name(sink, "pull-sample", &sample);
+
+    std::cout << "got sample" << std::endl;
+
+    if (sample != NULL)
+    {
+        GstBuffer* buffer_ = gst_sample_get_buffer(sample);
+        if (buffer_ != NULL)
+        {
+            // self->m_video_receive_pipeline->last_buffer = gst_buffer_copy(buffer_);
+
+            gst_buffer_map(buffer_, &bufferInfo, GST_MAP_READ);
+
+            // Get video width and height
+            GstVideoFrame vframe;
+            GstVideoInfo  video_info;
+            GstCaps*      sampleCaps = gst_sample_get_caps(sample);
+            gst_video_info_from_caps(&video_info, sampleCaps);
+            gst_video_frame_map(&vframe, &video_info, buffer_, GST_MAP_READ);
+
+            if (self->m_video_receive_pipeline->callback != nullptr)
+            {
+                self->m_video_receive_pipeline->callback((uint8_t*) bufferInfo.data,
+                                                         video_info.size,
+                                                         video_info.width,
+                                                         video_info.height,
+                                                         video_info.stride[0]);
+            }
+            else
+            {
+                std::cerr << "MEDIA: no callback set for on frame" << std::endl;
+            }
+
 
             gst_buffer_unmap(buffer_, &bufferInfo);
             gst_video_frame_unmap(&vframe);
@@ -228,16 +309,10 @@ FlowyMedia::~FlowyMedia()
         gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_NULL);
     }
 
-    if (m_video_receive_pipeline->buffer)
+    if (m_video_receive_pipeline->last_buffer)
     {
-        gst_buffer_unref(m_video_receive_pipeline->buffer);
-        m_video_receive_pipeline->buffer = nullptr;
-    }
-
-    if (m_video_receive_pipeline->bus)
-    {
-        gst_object_unref(m_video_receive_pipeline->bus);
-        m_video_receive_pipeline->bus = nullptr;
+        gst_buffer_unref(m_video_receive_pipeline->last_buffer);
+        m_video_receive_pipeline->last_buffer = nullptr;
     }
 
     if (m_video_receive_pipeline->pixels)
@@ -248,28 +323,20 @@ FlowyMedia::~FlowyMedia()
     gst_deinit();
 }
 
-void FlowyMedia::StartSendLiveAudio()
+void FlowyMedia::Publish()
 {
-    std::cout << "Starting send live audio" << std::endl;
-    gst_element_set_state(m_audio_send_pipeline, GST_STATE_PLAYING);
+    std::cout << "publishing media" << std::endl;
+    // gst_element_set_state(m_audio_send_pipeline, GST_STATE_PLAYING);
+    gst_element_set_state(m_video_send_pipeline->pipeline, GST_STATE_PLAYING);
 }
 
 // TODO: figure out if we need to stop the pipeline or just pause it
 // record pipeline might not work if this is paused
-void FlowyMedia::StopSendLiveAudio()
+void FlowyMedia::Unpublish()
 {
-    std::cout << "Stopping send live audio" << std::endl;
-    gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
-}
-
-void FlowyMedia::StartSendLiveVideo()
-{
-    std::cerr << "Not implemented!!" << std::endl;
-}
-
-void FlowyMedia::StopSendLiveVideo()
-{
-    std::cerr << "Not implemented!!" << std::endl;
+    std::cout << "unpublishing media" << std::endl;
+    // gst_element_set_state(m_audio_send_pipeline, GST_STATE_PAUSED);
+    gst_element_set_state(m_video_send_pipeline->pipeline, GST_STATE_PAUSED);
 }
 
 void FlowyMedia::StartRecord()
@@ -325,25 +392,15 @@ gboolean FlowyMedia::HandleGstMessage(GstBus* bus, GstMessage* message, gpointer
     return GST_BUS_PASS;
 }
 
-void FlowyMedia::StartReceiveVideo()
+void FlowyMedia::onReceiveVideoFrame(VideoFrameCallback callback, VideoRenderType type)
 {
-    if (m_video_receive_pipeline->pipeline == nullptr)
+    switch (type)
     {
-        std::cerr << "MEDIA: pipeline not initialized" << std::endl;
-        return;
+        case VideoRenderType::Local:
+            m_video_send_pipeline->callback = callback;
+            break;
+        case VideoRenderType::Remote:
+            m_video_receive_pipeline->callback = callback;
+            break;
     }
-
-    std::cout << "Starting receive video" << std::endl;
-    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PLAYING);
-}
-
-void FlowyMedia::StopReceiveVideo()
-{
-    std::cout << "Stopping receive video" << std::endl;
-    gst_element_set_state(m_video_receive_pipeline->pipeline, GST_STATE_PAUSED);
-}
-
-void FlowyMedia::onReceiveVideoFrame(VideoFrameCallback callback)
-{
-    video_callback_ = callback;
 }

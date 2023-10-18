@@ -17,8 +17,10 @@ class MethodChannelFlowyMultimedia extends FlowyMultimediaPlatform {
   }
 
   @override
-  Future<int> startReceiveVideo() async {
-    int? textureId = await methodChannel.invokeMethod<int>('startReceiveVideo');
+  Future<int> subscribeToRoom(String roomId) async {
+    int? textureId = await methodChannel.invokeMethod<int>('subscribeToRoom', {
+      'roomId': roomId,
+    });
     if (textureId == null) {
       throw Exception('textureId is null');
     }
@@ -27,8 +29,19 @@ class MethodChannelFlowyMultimedia extends FlowyMultimediaPlatform {
   }
 
   @override
-  Future<void> stopReceiveVideo() async {
-    await methodChannel.invokeMethod<void>('stopReceiveVideo');
+  Future<int> startPublish() async {
+    int? textureId = await methodChannel.invokeMethod<int>('startPublish');
+
+    if (textureId == null) {
+      throw Exception('textureId is null');
+    }
+
+    return textureId;
+  }
+
+  @override
+  Future<void> stopPublish() async {
+    await methodChannel.invokeMethod<void>('stopPublish');
   }
 
   @override

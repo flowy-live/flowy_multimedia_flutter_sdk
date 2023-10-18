@@ -1,7 +1,7 @@
 name: flowy_multimedia
 description: A new Flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://flowy.live
 
 environment:
   sdk: '>=3.1.1 <4.0.0'

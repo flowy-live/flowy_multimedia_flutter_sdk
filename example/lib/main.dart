@@ -38,6 +38,8 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
+    await _flowyMultimediaPlugin.subscribeToRoom('test');
+
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -61,11 +63,18 @@ class _MyAppState extends State<MyApp> {
   }
 
   int textureId = 0;
-  void startVideo() {
-    _flowyMultimediaPlugin.startReceiveVideo().then((value) {
+
+  void subscribe() {
+    _flowyMultimediaPlugin.subscribeToRoom("test").then((value) {
       setState(() {
         textureId = value;
       });
+    });
+  }
+
+  void publish() {
+    _flowyMultimediaPlugin.startPublish().then((value) {
+      print("got texture id for local publish but not going to use yet: $value");
     });
   }
 
@@ -88,8 +97,11 @@ class _MyAppState extends State<MyApp> {
               //     child: Text(
               //         _isRecording ? 'Stop Recording' : 'Start Recording')),
               ElevatedButton(
-                  onPressed: startVideo,
-                  child: const Text("Start receive video")),
+                  onPressed: subscribe,
+                  child: const Text("subscribe")),
+              ElevatedButton(
+                  onPressed: publish,
+                  child: const Text("publish")),
               SizedBox(
                   height: 600,
                   width: 800,
