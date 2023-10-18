@@ -21,7 +21,7 @@ class FlowyMultimedia {
   Future<int> subscribeToRoom(String roomId) async {
     int textureId = await FlowyMultimediaPlatform.instance.subscribeToRoom(roomId);
 
-    print('textureId received on frontend: $textureId');
+    print('textureId received from platform for remote video: $textureId');
 
     return textureId;
   }

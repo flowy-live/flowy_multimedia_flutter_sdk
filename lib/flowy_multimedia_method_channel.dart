@@ -18,7 +18,9 @@ class MethodChannelFlowyMultimedia extends FlowyMultimediaPlatform {
 
   @override
   Future<int> subscribeToRoom(String roomId) async {
-    int? textureId = await methodChannel.invokeMethod<int>('subscribeToRoom');
+    int? textureId = await methodChannel.invokeMethod<int>('subscribeToRoom', {
+      'roomId': roomId,
+    });
     if (textureId == null) {
       throw Exception('textureId is null');
     }
